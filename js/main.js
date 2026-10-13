@@ -247,24 +247,37 @@
   /* copy buttons */
   $$('[data-copy]').forEach(function(b){ b.addEventListener('click',function(){ var el=document.getElementById(b.dataset.copy), t=el.textContent.trim(); var reset=function(){ setTimeout(function(){b.textContent='Copy';},1400); }; var sel=function(){ var r=document.createRange(); r.selectNodeContents(el); var x=getSelection(); x.removeAllRanges(); x.addRange(r); b.textContent='Selected'; reset(); }; try{ navigator.clipboard.writeText(t).then(function(){b.textContent='Copied';reset();},sel); }catch(e){ sel(); } }); });
 
-  /* forms → a WhatsApp message to his number */
+  /* forms → a WhatsApp message to his number, plus an email notification */
   var WA='https://wa.me/919717195907?text=';
-  function send(msgEl,text,need,what){
+  // Web app URL of the Google Apps Script in google-apps-script/ (it ends in /exec).
+  // While this is empty, no email is sent and the forms only open WhatsApp.
+  var NOTIFY_URL='';
+  function notify(d){
+    if(!NOTIFY_URL) return;
+    // Apps Script sends no CORS headers, so the reply is opaque; nothing to read back
+    try{ fetch(NOTIFY_URL,{method:'POST',mode:'no-cors',keepalive:true,body:new URLSearchParams(d)}).catch(function(){}); }catch(e){}
+  }
+  function send(msgEl,text,need,what,data){
     var miss=need.filter(function(id){ return !document.getElementById(id).value.trim(); });
-    msgEl.hidden=false;
-    if(miss.length){ msgEl.textContent='Please fill in '+what+'.'; document.getElementById(miss[0]).focus(); return; }
-    var a=document.createElement('a'); a.href=WA+encodeURIComponent(text()); a.target='_blank'; a.rel='noopener'; a.textContent='Open WhatsApp to send it →';
-    msgEl.textContent='Your request is ready. '; msgEl.appendChild(a);
+    if(miss.length){ msgEl.hidden=false; msgEl.textContent='Please fill in '+what+'.'; document.getElementById(miss[0]).focus(); return; }
+    msgEl.hidden=true;
+    notify(data());
+    var a=document.createElement('a'); a.href=WA+encodeURIComponent(text()); a.target='_blank'; a.rel='noopener'; document.body.appendChild(a); a.click(); a.remove();
   }
   $('#book-form').addEventListener('submit',function(e){
     e.preventDefault(); var f=this;
+    function mode(){ return f.querySelector('input[name=mode]:checked').value; }
+    function day(){ return f.date.dataset.label||f.date.value; }
     send($('#book-msg'),function(){
-      var mode=f.querySelector('input[name=mode]:checked').value;
-      return 'Appointment request\nName: '+f.name.value+'\nPhone: '+f.phone.value+'\nDate: '+(f.date.dataset.label||f.date.value)+' at '+f.time.value+'\nMeeting: '+mode+'\nArea: '+f.area.value+(f.message.value.trim()?'\nMatter: '+f.message.value.trim():'');
-    },['b-name','b-phone','b-date'],'your name, phone and preferred date');
+      return 'Appointment request\nName: '+f.name.value+'\nPhone: '+f.phone.value+'\nDate: '+day()+' at '+f.time.value+'\nMeeting: '+mode()+'\nArea: '+f.area.value+(f.message.value.trim()?'\nMatter: '+f.message.value.trim():'');
+    },['b-name','b-phone','b-date'],'your name, phone and preferred date',function(){
+      return {type:'Appointment',name:f.name.value.trim(),phone:f.phone.value.trim(),when:day()+' at '+f.time.value,mode:mode(),area:f.area.value,message:f.message.value.trim()};
+    });
   });
   $('#cb-form').addEventListener('submit',function(e){
     e.preventDefault(); var f=this;
-    send($('#cb-msg'),function(){ return 'Call back request\nName: '+f.name.value+'\nPhone: '+f.phone.value+'\nBest time: '+f.when.value; },['c-name','c-phone'],'your name and phone');
+    send($('#cb-msg'),function(){ return 'Call back request\nName: '+f.name.value+'\nPhone: '+f.phone.value+'\nBest time: '+f.when.value; },['c-name','c-phone'],'your name and phone',function(){
+      return {type:'Call back',name:f.name.value.trim(),phone:f.phone.value.trim(),when:f.when.value};
+    });
   });
 })();
