@@ -13,7 +13,7 @@
   var top=$('#top-bar'), links=$$('#nav a'), mb=$('#menu-btn');
   mb.addEventListener('click',function(){ var o=!top.classList.contains('open'); top.classList.toggle('open',o); mb.setAttribute('aria-expanded',o); });
   $$('#drawer a').forEach(function(a){ a.addEventListener('click',function(){ top.classList.remove('open'); mb.setAttribute('aria-expanded',false); }); });
-  var secs=['practice','courts','contact','process','faq','gallery','about','career'].map(function(i){return document.getElementById(i);});
+  var secs=['practice','courts','contact','process','faq','about','career'].map(function(i){return document.getElementById(i);});
 
   /* reveals: only below-the-fold items start hidden */
   var vh=innerHeight, pend=[];
@@ -39,7 +39,7 @@
     vh=innerHeight;
     top.classList.toggle('scrolled', scrollY>10);
     var cur=null; secs.forEach(function(s){ if(s.getBoundingClientRect().top < vh*.4) cur=s.id; });
-    if(cur==='career') cur='about'; if(cur==='gallery'||cur==='faq'||cur==='process') cur='contact';
+    if(cur==='career') cur='about'; if(cur==='faq'||cur==='process') cur='contact';
     links.forEach(function(a){ a.classList.toggle('on', a.getAttribute('href')==='#'+cur); });
     if(pend.length) pend=pend.filter(function(el){ if(el.getBoundingClientRect().top<vh*.9){ el.classList.remove('pend'); onShow(el); return false;} return true; });
     if(!reduce){
@@ -93,7 +93,7 @@
       var t=e.target, lab=t.closest('[data-cur]');
       cu.classList.remove('big','lab','img');
       if(lab){ cu.classList.add('lab'); cl.textContent=lab.dataset.cur; }
-      else if(t.closest('.gal figure,.about .ph,.hero .fig')){ cu.classList.add('img'); }
+      else if(t.closest('.about .ph,.hero .fig')){ cu.classList.add('img'); }
       else if(t.closest('a,button,label,input,select,textarea,.court')){ cu.classList.add('big'); }
     });
     var cRun=false; function curLoop(){ cx+=(tx-cx)*.25; cy+=(ty-cy)*.25; cu.style.transform='translate('+cx.toFixed(1)+'px,'+cy.toFixed(1)+'px)'; if(Math.abs(tx-cx)>.3||Math.abs(ty-cy)>.3) requestAnimationFrame(curLoop); else cRun=false; }
@@ -168,15 +168,6 @@
   $$('[data-copy]').forEach(function(b){ b.addEventListener('click',function(){ say((b.dataset.copy.indexOf('email')>-1?'Email':'Phone number')+' copied'); }); });
 
 
-  /* gallery lightbox */
-  var lb=$('#lb'), lbi=$('#lb-img'), lbc=$('#lb-c'), gfs=$$('.gal figure'), li=0, lastF=null;
-  function show(i){ li=(i+gfs.length)%gfs.length; var im=gfs[li].querySelector('img'); lbi.src=im.src; lbi.alt=im.alt; var c=gfs[li].querySelector('figcaption'); lbc.textContent=c?c.textContent:''; lbi.style.animation='none'; void lbi.offsetWidth; lbi.style.animation=''; }
-  function open(i){ lastF=document.activeElement; show(i); lb.hidden=false; document.body.style.overflow='hidden'; $('#lb-x').focus(); }
-  function close(){ lb.hidden=true; document.body.style.overflow=''; if(lastF) lastF.focus(); }
-  gfs.forEach(function(f,i){ f.tabIndex=0; f.setAttribute('role','button'); f.setAttribute('aria-label','View photo '+(i+1)); f.addEventListener('click',function(){ open(i); }); f.addEventListener('keydown',function(e){ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(i); } }); });
-  $('#lb-x').addEventListener('click',close); $('#lb-p').addEventListener('click',function(){ show(li-1); }); $('#lb-n').addEventListener('click',function(){ show(li+1); });
-  lb.addEventListener('click',function(e){ if(e.target===lb) close(); });
-  addEventListener('keydown',function(e){ if(lb.hidden) return; if(e.key==='Escape') close(); if(e.key==='ArrowLeft') show(li-1); if(e.key==='ArrowRight') show(li+1); });
 
 
   /* practice detail panel */
@@ -206,7 +197,7 @@
 
   /* keep Tab inside whichever dialog is open */
   addEventListener('keydown',function(e){
-    if(e.key!=='Tab') return; var dlg=!lb.hidden?lb:(!pm.hidden?pm:null); if(!dlg) return;
+    if(e.key!=='Tab') return; var dlg=!pm.hidden?pm:null; if(!dlg) return;
     var f=[].slice.call(dlg.querySelectorAll('a[href],button')).filter(function(x){ return x.offsetParent!==null; }); if(!f.length) return;
     var first=f[0], last=f[f.length-1], a=document.activeElement;
     if(e.shiftKey && (a===first||!dlg.contains(a))){ e.preventDefault(); last.focus(); }
