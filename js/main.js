@@ -251,7 +251,7 @@
   var WA='https://wa.me/919717195907?text=';
   // Web app URL of the Google Apps Script in google-apps-script/ (it ends in /exec).
   // While this is empty, no email is sent and the forms only open WhatsApp.
-  var NOTIFY_URL='';
+  var NOTIFY_URL='https://script.google.com/macros/s/AKfycbzF11GZpq-AK6ulmkOyX23Iie_wsQ7CIkSrE4-09fY25yb-jf6dtjBrilrGlQA6vw6uxw/exec';
   function notify(d){
     if(!NOTIFY_URL) return;
     // Apps Script sends no CORS headers, so the reply is opaque; nothing to read back
