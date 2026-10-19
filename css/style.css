@@ -679,3 +679,8 @@ footer .base a{color:#E7E1D5;text-decoration:none}
     .cur{display:none}
   *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0ms!important;transition-duration:.01ms!important}
 }
+
+/* Independent director badge in hero */
+.hero .idq{display:inline-flex;align-items:center;gap:10px;margin-top:16px;padding:8px 16px;border:1px solid var(--red);border-radius:999px;background:rgba(178,58,46,.14);color:#F1EBDF;font-size:14px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.hero .idq i{width:8px;height:8px;border-radius:50%;background:var(--red);box-shadow:0 0 0 4px rgba(178,58,46,.25);flex:none}
+@media (max-width:520px){.hero .idq{font-size:12px;padding:8px 14px;letter-spacing:.03em;border-radius:14px}.hero .idq .sep{display:none}.hero .idq .db{display:block;font-size:11px;font-weight:500;opacity:.75;margin-top:2px}}
